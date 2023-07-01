@@ -3,7 +3,6 @@ using ItAcademy.Application.Interfaces;
 using ItAcademy.Application.Models;
 using ItAcademy.Domain.Exceptions;
 using ItAcademy.Models.BaseModels;
-using ItAcademy.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ItAcademy.Controllers;
@@ -20,11 +19,11 @@ public class UserController : ControllerBase
     }
     
     [HttpPost] 
-    public Result RegisterUser([FromBody] UserView userView)
+    public async Task<Result> RegisterUser([FromBody] UserView userView)
     {
-        if(!_userService.CreateUser(userView))
+        if(!await _userService.CreateUserAsync(userView))
         {
-            // 
+            // TODO: Log info
             throw new UserAlreadyExistException(userView.Email);
         }
 
@@ -32,10 +31,9 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public ResultValue<string> Login([FromQuery]string email, [FromQuery]string password)
+    public async Task<ResultValue<string>> Login([FromQuery]string email, [FromQuery]string password)
     {
-        
-        var token = _userService.LoginUser(email, password);
+        var token = await _userService.LoginUserAsync(email, password);
         
         return new ResultValue<string>(HttpStatusCode.OK, "", token);
     }

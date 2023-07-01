@@ -1,16 +1,17 @@
-using ItAcademy;
+using ItAcademy.Application;
 using ItAcademy.Extensions;
+using ItAcademy.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var jwtTokenOptions = new JwtTokenOptions(builder.Configuration);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 
 builder.Services.RegisterJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
+
+builder.Services.AddRequiredServices();
+builder.Services.ApplicationContextRegistration(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

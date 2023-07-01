@@ -1,10 +1,12 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ItAcademy.Extensions;
+namespace ItAcademy.Application;
 
-public static class JwtAuthenticationExtension
+public static class DependencyInjection
 {
     public static IServiceCollection RegisterJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {

@@ -1,5 +1,7 @@
-﻿#pragma warning disable CS8618
-namespace ItAcademy;
+﻿using Microsoft.Extensions.Configuration;
+
+#pragma warning disable CS8618
+namespace ItAcademy.Application;
 
 public class JwtTokenOptions
 {
