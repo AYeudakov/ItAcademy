@@ -1,10 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using ItAcademy.Application.Interfaces;
 using ItAcademy.Application.Models;
 using ItAcademy.Domain;
 using ItAcademy.Domain.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -26,21 +28,44 @@ public class UserService : IUserService
     {
         return await _context.Users.FirstOrDefaultAsync(user => user.Email == email);
     }
+    
     public async Task<bool> CreateUserAsync(UserView userView)
     {
         if (await GetUserByEmailAsync(userView.Email) != null)
         {
             return false;
         }
-
-        // TODO: validate email
-        _context.Users.Add(new User
+        
+        //TODO: GetHashFor userView.Password
+        
+        await _context.Users.AddAsync(new User
         {
             Email = userView.Email,
             Password = userView.Password
         });
 
+        await _context.SaveChangesAsync(CancellationToken.None);        
+
         return true;
+    }
+
+    public async Task<UserView> UpdateUserAsync(UserView userView, string currentUserEmail)
+    {
+        if (await GetUserByEmailAsync(userView.Email) != null)
+        {
+            throw new UserAlreadyExistException(userView.Email);
+        }
+        
+        var user = await GetUserByEmailAsync(currentUserEmail) ?? throw new UserNotFoundException();
+
+        user.Email = string.IsNullOrEmpty(userView.Email) ? user.Email : userView.Email;
+        user.Password = string.IsNullOrEmpty(userView.Password) ? user.Password : userView.Password;
+
+        _context.Users.Update(user);
+
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        return userView;
     }
 
     public async Task<string> LoginUserAsync(string email, string password)
@@ -55,7 +80,17 @@ public class UserService : IUserService
 
         return GenerateToken(email, _jwtOptions.Secret);
     }
-    
+
+    public async Task DeleteUserAsync(string email)
+    {
+        var user = await GetUserByEmailAsync(email);
+
+        _context.Users.Remove(user!);
+
+        await _context.SaveChangesAsync(CancellationToken.None);
+    }
+
+
     private string GenerateToken(string email, string secret)
     {
         var tokenHandler = new JwtSecurityTokenHandler();

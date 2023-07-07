@@ -5,7 +5,9 @@ namespace ItAcademy.Application.Interfaces;
 
 public interface IUserService
 {
-    public Task<User?> GetUserByEmailAsync(string email);
-    public Task<bool> CreateUserAsync(UserView userView);
-    public Task<string> LoginUserAsync(string email, string password);
+    Task<User?> GetUserByEmailAsync(string email);
+    Task<bool> CreateUserAsync(UserView userView);
+    Task<UserView> UpdateUserAsync(UserView userView, string currentUserEmail);
+    Task<string> LoginUserAsync(string email, string password);
+    Task DeleteUserAsync(string email);
 }
